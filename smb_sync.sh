@@ -15,8 +15,8 @@ USER="$2"
 PASS="$3"
 
 # Configuration
-OUTPUT_CSV="smb_shares.csv"
 SMB_USER_DIR="$PWD/smb_sync/$USER"
+OUTPUT_CSV="$SMB_USER_DIR/smb_shares.csv"
 SMB_RESULTS_DIR="$SMB_USER_DIR/results"
 OUTPUT_CSV="$SMB_USER_DIR/smb_shares.csv"
 

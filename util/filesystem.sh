@@ -8,6 +8,6 @@ create_clean_directory() {
     fi
 
     # Create new directory
-    mkdir "$DIR_NAME"
+    mkdir -p "$DIR_NAME"
     echo "Directory $DIR_NAME created successfully."
 }
