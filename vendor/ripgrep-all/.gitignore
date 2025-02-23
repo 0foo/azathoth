@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store      # macOS system files
+__pycache__/   # Python compiled files
+.lnk
+DefaultLayouts.xml
