@@ -33,7 +33,7 @@ extract_file() {
 # Find all files recursively and check MIME type
 find "$ROOT_DIR" -type f | while read -r file; do
     mime_type=$(file --mime-type -b "$file")
-
+    echo $file
     # Check if the MIME type is a known compressed format
     if [[ "$mime_type" =~ application/gzip|application/x-bzip2|application/x-xz|application/x-tar|application/zip|application/x-7z-compressed|application/x-rar ]]; then
         extract_file "$file"
