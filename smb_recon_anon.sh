@@ -2,10 +2,8 @@
 
 # SMB Enumeration and Recursive Download Script
 # Usage:
-#   ./smb_enum.sh <TARGET_IP_OR_HOSTNAME>
+#   ./smb_recon_anon.sh <TARGET_IP_OR_HOSTNAME>
 
-SCRIPT_DIR="$(cd "$(dirname "$BASH_SOURCE")" && pwd)"
-source "$SCRIPT_DIR/util/filesystem.sh"
 
 if [ -z "$1" ]; then
     echo "Usage: $0 <TARGET_IP_OR_HOSTNAME>"
@@ -13,27 +11,30 @@ if [ -z "$1" ]; then
 fi
 
 TARGET=$1
-create_clean_directory "smb_anon_recon"
+
+## Set logger
+LOGDIR=$(basename "$0")
+DATE=$(date +'%Y%m%d_%H%M%S')
+LOGFILE="./$LOGDIR/$DATE/scan.log"
+mkdir -p "./$LOGDIR/$DATE"
+exec > >(tee -a "$LOGFILE") 2>&1
 
 # Run all the nmap scripts for smb 
-nmap -Pn --script smb-* -p 445 -oX ./smb_results/nmap_anon.xml $TARGET 2>&1 | tee smb_results/nmap_anon.txt &
+nmap -Pn --script smb-* -p 445 -oX "./$LOGDIR/$DATE/nmap_results.xml" $TARGET 2>&1
 
 # Attempt to list anonymous shares 
-smbclient -L //$TARGET --user="" --password="" -N | tee smb_results/share_list_anon.txt &
-smbmap -H $TARGET -u "" -p "" | tee -a smb_results/share_list_anon.txt &
+smbclient -L //$TARGET --user="" --password="" -N
+smbmap -H $TARGET -u "" -p "" 
 
 # Run enum4linux tool
-enum4linux -a $TARGET | tee -a smb_results/enum4linux_anon.txt &
+enum4linux -a $TARGET 
 
 # Run rpcclient enumeration
-echo "attempting anonymous rpcclient command" | tee smb_results/rpcclient_anon.txt
-rpcclient -U "" --password="" $TARGET -c "enumdomusers" | tee -a smb_results/rpcclient_anon.txt &
-echo "if this succeeded and you see output you most likely can open an rpcclient on the host" | tee -a smb_results/rpcclient_anon.txt &
-
-# Wait for all background jobs to complete before exiting
-wait
+echo "attempting anonymous rpcclient command"
+rpcclient -U "" --password="" $TARGET -c "enumdomusers" 
+echo "if this succeeded and you see output you most likely can open an rpcclient on the host"
 
 echo "All SMB enumeration tasks completed."
-
+echo "[+] Log file saved to: $LOGFILE"
 
 
